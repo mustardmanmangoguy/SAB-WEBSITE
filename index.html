@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Security Check</title>
+<title>Script Panel</title>
 
 <style>
 * {
@@ -14,179 +14,202 @@
 }
 
 body {
+    background: radial-gradient(circle at top, #050b1f, #01040d 80%);
     height: 100vh;
-    background: radial-gradient(circle at top, #08122b, #020611 80%);
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
+    overflow: hidden;
 }
 
+/* Glow background */
+body::before {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(0,120,255,0.2), transparent);
+    animation: pulse 6s infinite;
+}
+
+@keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.4); opacity: 0.2; }
+}
+
+/* Container */
 .container {
-    width: 90%;
-    max-width: 380px;
-    padding: 25px;
+    width: 95%;
+    max-width: 400px;
+    padding: 20px;
     border-radius: 20px;
-    background: rgba(15, 25, 50, 0.7);
-    backdrop-filter: blur(15px);
-    box-shadow: 0 0 50px rgba(0, 120, 255, 0.3);
+    background: rgba(10, 20, 50, 0.6);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 60px rgba(0,120,255,0.25);
+    z-index: 2;
+}
+
+/* Header */
+.header {
     text-align: center;
+    margin-bottom: 20px;
 }
 
-.icon {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin: 0 auto 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle, #1e4fff, #081c4f);
-    box-shadow: 0 0 25px #2f7fff;
-    font-size: 45px;
-}
-
-.title {
-    font-size: 22px;
+.header h1 {
+    font-size: 20px;
     letter-spacing: 3px;
     color: #4ea1ff;
 }
 
-.subtitle {
+.header p {
     font-size: 11px;
+    color: #7c8bb3;
     letter-spacing: 4px;
-    color: #6c7ca3;
-    margin-bottom: 20px;
 }
 
-.box {
-    background: rgba(5,10,25,0.7);
+/* Card */
+.card {
+    background: rgba(0,0,0,0.5);
+    border-radius: 15px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: 0.3s;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.card:hover {
+    box-shadow: 0 0 25px rgba(0,120,255,0.3);
+}
+
+/* Header clickable */
+.card-header {
     padding: 15px;
-    border-radius: 12px;
-    font-size: 14px;
-    margin-bottom: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
+.card-header span {
+    font-size: 14px;
+}
+
+/* Arrow */
+.arrow {
+    transition: 0.3s;
+}
+
+/* Content */
+.card-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    padding: 0 15px;
+}
+
+/* Active */
+.card.active .card-content {
+    max-height: 200px;
+    padding-bottom: 15px;
+}
+
+.card.active .arrow {
+    transform: rotate(180deg);
+}
+
+/* Code */
+.code {
+    font-size: 11px;
+    font-family: monospace;
+    background: rgba(5,5,15,0.9);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    word-break: break-all;
+}
+
+/* Button */
 .btn {
+    margin-top: 10px;
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     border: none;
     border-radius: 10px;
     background: linear-gradient(90deg, #2b6cff, #4fa3ff);
     color: white;
-    font-weight: bold;
-    letter-spacing: 2px;
     cursor: pointer;
-    margin-top: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(0,120,255,0.5);
 }
 
-.loader {
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 15px;
-    display: none;
-}
-
-.bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #2b6cff, #4fa3ff);
-}
-
-.result { display: none; }
-
-.green {
-    color: #4cff88;
-}
-
-.codebox {
-    background: rgba(0,0,0,0.6);
-    padding: 12px;
-    border-radius: 10px;
-    font-family: monospace;
-    font-size: 12px;
-    margin-top: 10px;
-    word-break: break-all;
+.btn:hover {
+    transform: scale(1.03);
 }
 </style>
 </head>
 
 <body>
 
-<!-- PAGE 1 -->
-<div class="container" id="page1">
-    <div class="icon">🛡️</div>
+<div class="container">
 
-    <div class="title">SECURITY CHECK</div>
-    <div class="subtitle">SYSTEM INTEGRITY V29.0</div>
-
-    <div class="box">
-        Please complete the hardware integrity check to prove you are a human.<br><br>
-        <small>Automated scripts are strictly prohibited.</small>
+    <div class="header">
+        <h1>AVAILABLE SCRIPTS</h1>
+        <p>CONTROL PANEL</p>
     </div>
 
-    <button class="btn" onclick="start()">START VERIFICATION</button>
-
-    <div class="loader" id="loader">
-        <div class="bar" id="bar"></div>
-    </div>
-</div>
-
-<!-- PAGE 2 -->
-<div class="container result" id="page2">
-    <div class="title green">ACCESS GRANTED</div>
-    <div class="subtitle">USER ID: HUMAN_VERIFIED</div>
-
-    <div class="box">AVAILABLE SCRIPTS</div>
-
-    <!-- SAB PVP ENGINE -->
-    <div class="box">
-        <b>SAB PVP ENGINE ⚔️</b>
-        <div class="codebox" id="code1">
-loadstring(game:HttpGet("https://raw.githubusercontent.com/mustardmanmangoguy/Project/refs/heads/main/OPDuels"))()
+    <!-- CARD -->
+    <div class="card" onclick="toggle(this)">
+        <div class="card-header">
+            <span>SAB PVP ENGINE ⚔️</span>
+            <span class="arrow">▼</span>
         </div>
-        <button class="btn" onclick="copy('code1')">COPY COMMAND</button>
+        <div class="card-content">
+            <div class="code" id="code1">
+-- isi script
+            </div>
+            <button class="btn" onclick="copy(event,'code1')">COPY</button>
+        </div>
     </div>
 
-    <!-- SAB FREEZE TRADE -->
-    <div class="box">
-        <b>SAB FREEZE TRADE ❄️</b>
-        <div class="codebox" id="code2">
-loadstring(game:HttpGet("https://raw.githubusercontent.com/mustardmanmangoguy/Project/refs/heads/main/FreezeTrade"))()
+    <!-- CARD -->
+    <div class="card" onclick="toggle(this)">
+        <div class="card-header">
+            <span>SAB FREEZE TRADE ❄️</span>
+            <span class="arrow">▼</span>
         </div>
-        <button class="btn" onclick="copy('code2')">COPY COMMAND</button>
+        <div class="card-content">
+            <div class="code" id="code2">
+-- isi script
+            </div>
+            <button class="btn" onclick="copy(event,'code2')">COPY</button>
+        </div>
+    </div>
+
+    <!-- CARD -->
+    <div class="card" onclick="toggle(this)">
+        <div class="card-header">
+            <span>Brainrot Duper 🧠</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="card-content">
+            <div class="code" id="code3">
+-- isi script
+            </div>
+            <button class="btn" onclick="copy(event,'code3')">COPY</button>
+        </div>
     </div>
 
 </div>
 
 <script>
-function start() {
-    let loader = document.getElementById("loader");
-    let bar = document.getElementById("bar");
-
-    loader.style.display = "block";
-
-    let width = 0;
-    let interval = setInterval(() => {
-        width += Math.random() * 15;
-
-        if (width >= 100) {
-            width = 100;
-            clearInterval(interval);
-
-            setTimeout(() => {
-                document.getElementById("page1").style.display = "none";
-                document.getElementById("page2").style.display = "block";
-            }, 500);
-        }
-
-        bar.style.width = width + "%";
-    }, 200);
+function toggle(card) {
+    card.classList.toggle("active");
 }
 
-function copy(id) {
+function copy(e, id) {
+    e.stopPropagation();
     let text = document.getElementById(id).innerText;
     navigator.clipboard.writeText(text);
     alert("Copied!");
