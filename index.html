@@ -1,220 +1,834 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Script Panel</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GodDataX - Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="SaiKuto.png">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #050505;
+            color: #e5e5e5;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+        a { color: inherit; text-decoration: none; }
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
-}
+        /* Layout */
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
-body {
-    background: radial-gradient(circle at top, #050b1f, #01040d 80%);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    overflow: hidden;
-}
+        /* Header */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 24px; margin-bottom: 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-logo {
+            width: 48px; height: 48px; border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(255,26,26,0.4);
+        }
+        .header-title { font-size: 24px; font-weight: 700; color: #fff; text-shadow: 0 0 20px rgba(255,26,26,0.5); }
+        .header-subtitle { font-size: 14px; color: #888; font-weight: 300; }
 
-/* Glow background */
-body::before {
-    content: "";
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(0,120,255,0.2), transparent);
-    animation: pulse 6s infinite;
-}
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 10px; border: none;
+            font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-glass {
+            background: rgba(18,18,18,0.6); color: #e5e5e5;
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(16px);
+        }
+        .btn-glass:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .btn-red {
+            background: linear-gradient(135deg, #ff1a1a, #e60000);
+            color: #fff; border: none;
+            box-shadow: 0 4px 15px rgba(255,26,26,0.25);
+        }
+        .btn-red:hover { background: linear-gradient(135deg, #ff4d4d, #ff1a1a); }
+        .btn-red:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-danger-sm {
+            padding: 8px; border-radius: 8px; border: none;
+            background: rgba(255,26,26,0.1); color: #ff4d4d; cursor: pointer;
+            transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-danger-sm:hover { background: #ff1a1a; color: #fff; transform: scale(1.05); }
 
-@keyframes pulse {
-    0%,100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.4); opacity: 0.2; }
-}
+        /* Glass Panel */
+        .glass {
+            background: rgba(18,18,18,0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+            border-radius: 16px;
+        }
 
-/* Container */
-.container {
-    width: 95%;
-    max-width: 400px;
-    padding: 20px;
-    border-radius: 20px;
-    background: rgba(10, 20, 50, 0.6);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 0 60px rgba(0,120,255,0.25);
-    z-index: 2;
-}
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+        .stat-card { padding: 24px; position: relative; overflow: hidden; }
+        .stat-card .glow {
+            position: absolute; right: -24px; top: -24px;
+            width: 96px; height: 96px; border-radius: 50%; filter: blur(40px);
+            transition: all 0.3s;
+        }
+        .stat-card:hover .glow { opacity: 0.8; transform: scale(1.2); }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .stat-label { font-size: 14px; color: #888; margin-bottom: 4px; }
+        .stat-value { font-size: 36px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 12px; }
+        .stat-icon { padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #fff; }
+        .stat-desc { font-size: 12px; color: #555; }
 
-/* Header */
-.header {
-    text-align: center;
-    margin-bottom: 20px;
-}
+        /* Auth Styles */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-box {
+            background: rgba(18,18,18,0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,26,26,0.15);
+            padding: 40px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 40px rgba(255,26,26,0.1);
+        }
+        .auth-box img { width: 80px; margin-bottom: 24px; }
+        .auth-box h2 { color: #fff; margin-bottom: 8px; font-weight: 700; font-size: 24px; }
+        .auth-box p { color: #888; margin-bottom: 32px; font-size: 14px; }
+        .auth-input {
+            width: 100%; padding: 14px 16px; margin-bottom: 16px;
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; color: #fff; font-family: inherit; font-size: 15px;
+            outline: none; transition: border-color 0.2s;
+        }
+        .auth-input:focus { border-color: #ff1a1a; }
+        .auth-btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #ff1a1a 0%, #b30000 100%);
+            color: #fff; font-weight: 600; font-size: 16px; cursor: pointer;
+            transition: all 0.2s; box-shadow: 0 4px 15px rgba(255,26,26,0.3);
+        }
+        .auth-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,26,26,0.4); }
+        .auth-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-.header h1 {
-    font-size: 20px;
-    letter-spacing: 3px;
-    color: #4ea1ff;
-}
+        /* Pulse dot */
+        .pulse-dot { position: relative; display: inline-flex; width: 12px; height: 12px; }
+        .pulse-dot .ping {
+            position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; background: #3b82f6; opacity: 0.75;
+            animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite;
+        }
+        .pulse-dot .dot { position: relative; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; }
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 
-.header p {
-    font-size: 11px;
-    color: #7c8bb3;
-    letter-spacing: 4px;
-}
+        /* Main Layout */
+        .main-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
 
-/* Card */
-.card {
-    background: rgba(0,0,0,0.5);
-    border-radius: 15px;
-    margin-bottom: 12px;
-    overflow: hidden;
-    transition: 0.3s;
-    border: 1px solid rgba(255,255,255,0.05);
-}
+        /* Form */
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 12px; font-weight: 500; color: #888; margin-bottom: 8px; }
+        .form-input {
+            width: 100%; padding: 12px 16px; border-radius: 12px;
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; font-family: 'Outfit', sans-serif; font-size: 14px;
+            outline: none; transition: all 0.2s;
+        }
+        .form-input:focus { border-color: #ff1a1a; box-shadow: 0 0 0 2px rgba(255,26,26,0.15); }
+        .form-input::placeholder { color: #444; }
+        .form-static {
+            width: 100%; padding: 12px 16px; border-radius: 12px;
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05);
+            color: #ff4d4d; font-size: 14px; opacity: 0.8; display: flex; align-items: center; gap: 8px;
+        }
 
-.card:hover {
-    box-shadow: 0 0 25px rgba(0,120,255,0.3);
-}
+        /* Table */
+        .table-header {
+            padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.01);
+        }
+        .table-title { font-size: 18px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px;}
+        .search-box { position: relative; }
+        .search-box input {
+            padding: 8px 16px 8px 36px; border-radius: 8px;
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; font-family: 'Outfit', sans-serif; font-size: 14px;
+            outline: none; width: 240px; transition: all 0.2s;
+        }
+        .search-box input:focus { border-color: #ff1a1a; }
+        .search-box input::placeholder { color: #444; }
+        .search-box .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #555; }
 
-/* Header clickable */
-.card-header {
-    padding: 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        table { width: 100%; text-align: left; font-size: 14px; border-collapse: collapse; }
+        thead tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { padding: 12px 16px; font-size: 11px; font-weight: 500; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 16px; }
+        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s; }
+        tbody tr:hover { background: rgba(255,255,255,0.015); }
+        .mono { font-family: 'Courier New', monospace; color: #ccc; font-size: 13px; }
 
-.card-header span {
-    font-size: 14px;
-}
+        /* Badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+        }
+        .badge-online { background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+        .badge-offline { background: rgba(107,114,128,0.1); color: #9ca3af; border: 1px solid rgba(107,114,128,0.2); }
+        .badge-inactive { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+        .badge-available { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+        .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .badge-dot-online { background: #3b82f6; animation: pulse-badge 2s infinite; }
+        .badge-dot-offline { background: #6b7280; }
+        .badge-dot-inactive { background: #ef4444; }
+        @keyframes pulse-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-/* Arrow */
-.arrow {
-    transition: 0.3s;
-}
+        .empty-state { padding: 40px 16px; text-align: center; color: #555; font-size: 14px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+        .loading-state { padding: 40px 16px; text-align: center; color: #555; font-size: 14px; animation: pulse-fade 1.5s infinite; }
+        @keyframes pulse-fade { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-/* Content */
-.card-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease;
-    padding: 0 15px;
-}
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: #111; border: 1px solid rgba(255,26,26,0.2);
+            border-radius: 20px; padding: 32px; width: 100%; max-width: 400px;
+            text-align: center; transform: translateY(20px) scale(0.95); transition: all 0.3s;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(255,26,26,0.1);
+        }
+        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+        .modal-icon {
+            width: 64px; height: 64px; border-radius: 50%; background: rgba(255,26,26,0.1);
+            color: #ff1a1a; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .modal-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+        .modal-desc { font-size: 14px; color: #888; margin-bottom: 24px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .modal-btn-cancel { background: #222; color: #ccc; border: 1px solid #333; }
+        .modal-btn-cancel:hover { background: #333; color: #fff; }
 
-/* Active */
-.card.active .card-content {
-    max-height: 200px;
-    padding-bottom: 15px;
-}
+        /* Toast */
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px;
+            background: rgba(18,18,18,0.9); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+        .toast-success { border-left: 3px solid #10b981; }
+        .toast-error { border-left: 3px solid #ef4444; }
+        .toast-text { font-size: 14px; font-weight: 500; color: #fff; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-.card.active .arrow {
-    transform: rotate(180deg);
-}
-
-/* Code */
-.code {
-    font-size: 11px;
-    font-family: monospace;
-    background: rgba(5,5,15,0.9);
-    padding: 10px;
-    border-radius: 8px;
-    margin-top: 10px;
-    word-break: break-all;
-}
-
-/* Button */
-.btn {
-    margin-top: 10px;
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #2b6cff, #4fa3ff);
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    letter-spacing: 1px;
-    box-shadow: 0 0 15px rgba(0,120,255,0.5);
-}
-
-.btn:hover {
-    transform: scale(1.03);
-}
-</style>
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container { padding: 12px; }
+            .header {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                text-align: center;
+                padding-bottom: 20px;
+                margin-bottom: 24px;
+            }
+            .header-left {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 16px;
+                padding: 16px;
+            }
+            .search-box input {
+                width: 100%;
+            }
+            .stat-value {
+                font-size: 28px;
+            }
+            .auth-box {
+                padding: 24px 16px;
+            }
+            .modal-box {
+                padding: 20px 16px;
+                margin: 0 16px;
+            }
+            .toast-container {
+                right: 16px;
+                left: 16px;
+                bottom: 16px;
+            }
+            .toast {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Responsive Table Enhancements */
+            table { min-width: 550px; } /* Ensures table doesn't squish too much and allows horizontal scroll */
+            th, td { padding: 12px 10px; font-size: 13px; }
+            .btn-danger-sm { padding: 8px 12px; } /* Larger touch target for mobile */
+            .badge { padding: 6px 10px; font-size: 11px; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="container">
-
-    <div class="header">
-        <h1>AVAILABLE SCRIPTS</h1>
-        <p>CONTROL PANEL</p>
-    </div>
-
-    <!-- CARD -->
-    <div class="card" onclick="toggle(this)">
-        <div class="card-header">
-            <span>SAB PVP ENGINE ⚔️</span>
-            <span class="arrow">▼</span>
-        </div>
-        <div class="card-content">
-            <div class="code" id="code1">
-loadstring(game:HttpGet("https://raw.githubusercontent.com/mustardmanmangoguy/Project/refs/heads/main/OPDuels"))()
+    <div id="app">
+        
+        <!-- LOGIN SCREEN -->
+        <div v-if="!isLoggedIn" class="auth-container">
+            <div class="auth-box">
+                <img src="SaiKuto.png" alt="GodDataX" onerror="this.style.display='none'">
+                <h2>Admin Login</h2>
+                <p>Masuk menggunakan akun Supabase Anda</p>
+                <form @submit.prevent="handleLogin">
+                    <input type="email" v-model="auth.email" class="auth-input" placeholder="Email Administrator" required>
+                    <input type="password" v-model="auth.password" class="auth-input" placeholder="Password" required>
+                    <button type="submit" class="auth-btn" :disabled="auth.loading">
+                        <span v-if="auth.loading">Memverifikasi...</span>
+                        <span v-else>Masuk ke Dashboard</span>
+                    </button>
+                </form>
             </div>
-            <button class="btn" onclick="copy(event,'code1')">COPY</button>
-        </div>
-    </div>
-
-    <!-- CARD -->
-    <div class="card" onclick="toggle(this)">
-        <div class="card-header">
-            <span>SAB FREEZE TRADE ❄️</span>
-            <span class="arrow">▼</span>
-        </div>
-        <div class="card-content">
-            <div class="code" id="code2">
-loadstring(game:HttpGet("https://raw.githubusercontent.com/mustardmanmangoguy/Project/refs/heads/main/FreezeTrade"))()
+            
+            <!-- Toast Container for Login -->
+            <div class="toast-container" style="bottom: 24px;">
+                <div v-for="toast in toasts" :key="toast.id" :class="['toast', 'toast-' + toast.type]">
+                    <i v-if="toast.type==='success'" data-lucide="check-circle" style="color:#10b981; width:20px;"></i>
+                    <i v-else data-lucide="alert-circle" style="color:#ef4444; width:20px;"></i>
+                    <span class="toast-text">{{ toast.message }}</span>
+                </div>
             </div>
-            <button class="btn" onclick="copy(event,'code2')">COPY</button>
         </div>
-    </div>
 
-    <!-- CARD -->
-    <div class="card" onclick="toggle(this)">
-        <div class="card-header">
-            <span>Brainrot Duper 🧠</span>
-            <span class="arrow">▼</span>
-        </div>
-        <div class="card-content">
-            <div class="code" id="code3">
-loadstring(game:HttpGet("https://raw.githubusercontent.com/mustardmanmangoguy/Project/refs/heads/main/DUPERV2"))()
+        <!-- DASHBOARD (Only visible if logged in) -->
+        <div v-else class="container">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <img src="SaiKuto.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+                <div>
+                    <div class="header-title">GodDataX</div>
+                    <div class="header-subtitle">Admin Server Dashboard</div>
+                </div>
             </div>
-            <button class="btn" onclick="copy(event,'code3')">COPY</button>
+            <div style="display:flex; gap:12px;">
+                <button class="btn btn-glass" @click="fetchData">
+                    <i data-lucide="refresh-cw" style="width:16px; height:16px;"></i> Refresh
+                </button>
+                <button class="btn btn-danger-sm" @click="handleLogout">
+                    <i data-lucide="log-out" style="width:16px; height:16px;"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="glass stat-card">
+                <div class="glow" style="background:rgba(255,26,26,0.15);"></div>
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Total Lisensi</div>
+                        <div class="stat-value">{{ stats.total }}</div>
+                    </div>
+                    <div class="stat-icon"><i data-lucide="key"></i></div>
+                </div>
+                <div class="stat-desc">Semua lisensi terdaftar di database</div>
+            </div>
+            <div class="glass stat-card">
+                <div class="glow" style="background:rgba(16,185,129,0.1);"></div>
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Perangkat Terdaftar</div>
+                        <div class="stat-value">{{ stats.installed }}</div>
+                    </div>
+                    <div class="stat-icon"><i data-lucide="smartphone"></i></div>
+                </div>
+                <div class="stat-desc">Lisensi yang sudah terkunci ke 1 HWID HP</div>
+            </div>
+            <div class="glass stat-card">
+                <div class="glow" style="background:rgba(59,130,246,0.1);"></div>
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">User Online</div>
+                        <div class="stat-value">
+                            {{ stats.online }}
+                            <span v-if="stats.online > 0" class="pulse-dot">
+                                <span class="ping"></span>
+                                <span class="dot"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="stat-icon"><i data-lucide="zap"></i></div>
+                </div>
+                <div class="stat-desc">User yang saat ini berada di dalam aplikasi</div>
+            </div>
         </div>
-    </div>
 
-</div>
+        <!-- Main Content -->
+        <div class="main-grid">
 
-<script>
-function toggle(card) {
-    card.classList.toggle("active");
-}
+            <!-- Generate License Form -->
+            <div>
+                <div class="glass" style="padding: 24px; position: sticky; top: 24px;">
+                    <h3 style="font-size:18px; font-weight:600; color:#fff; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="plus-circle" style="width:20px; height:20px; color:#ff1a1a;"></i> Buat Lisensi Baru
+                    </h3>
 
-function copy(e, id) {
-    e.stopPropagation();
-    let text = document.getElementById(id).innerText;
-    navigator.clipboard.writeText(text);
-    alert("Copied!");
-}
+                    <form @submit.prevent="generateLicense">
+                        <div class="form-group">
+                            <label class="form-label">License Key</label>
+                            <input v-model="newKey" type="text" class="form-input" placeholder="contoh: TRX-LYNK-12345678" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Durasi Otomatis</label>
+                            <div class="form-static">
+                                <i data-lucide="calendar" style="width:16px; height:16px;"></i> 2 Bulan (Update OB Free Fire)
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-red" style="width:100%; justify-content:center; padding:12px;" :disabled="creating">
+                            <i data-lucide="server" style="width:16px; height:16px;"></i> {{ creating ? 'Memproses...' : 'Tambahkan Ke Database' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- License Table -->
+            <div>
+                <div class="glass" style="overflow:hidden;">
+                    <div class="table-header">
+                        <div class="table-title">
+                            <i data-lucide="database" style="width:20px; height:20px;"></i> Database Lisensi
+                        </div>
+                        <div class="search-box">
+                            <i data-lucide="search" class="search-icon" style="width:16px; height:16px;"></i>
+                            <input v-model="searchQuery" type="text" placeholder="Cari lisensi / HWID...">
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto; padding: 8px 16px 16px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>License Key</th>
+                                    <th>Status</th>
+                                    <th>Device HWID</th>
+                                    <th style="text-align:right;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="loading">
+                                    <td colspan="4" class="loading-state">Memuat data dari Supabase...</td>
+                                </tr>
+                                <tr v-else-if="filteredLicenses.length === 0">
+                                    <td colspan="4">
+                                        <div class="empty-state">
+                                            <i data-lucide="inbox" style="width:32px; height:32px; opacity:0.5;"></i>
+                                            Tidak ada lisensi ditemukan.
+                                        </div>
+                                    </td>
+                                </tr>
+                                                                <tr v-for="lic in filteredLicenses" :key="lic.key">
+                                                                                                        <td class="mono">{{ lic.key }}</td>
+                                                                                                        <td>
+                                                                                                                                                    <span v-if="isActuallyOnline(lic)" class="badge badge-online" style="cursor: pointer;" @click="toggleStatus(lic)" title="Klik untuk mengubah status">
+                                                                                                                                                                                                    <span class="badge-dot badge-dot-online"></span> Online
+                                                                                                                                                        </span>
+                                                                                                                                                    <span v-else-if="!lic.is_active" class="badge badge-inactive" style="cursor: pointer;" @click="toggleStatus(lic)" title="Klik untuk mengubah status">
+                                                                                                                                                                                                    <span class="badge-dot badge-dot-inactive"></span> Nonaktif
+                                                                                                                                                        </span>
+                                                                                                                                                    <span v-else class="badge badge-offline" style="cursor: pointer;" @click="toggleStatus(lic)" title="Klik untuk mengubah status">
+                                                                                                                                                                                                    <span class="badge-dot badge-dot-offline"></span> Offline
+                                                                                                                                                        </span>
+                                                                                                            </td>
+                                                                                                        <td>
+                                                                                                                                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                                                                                                                                                                                    <span v-if="lic.device_id && lic.device_id !== 'null' && typeof lic.device_id === 'string' && lic.device_id.trim() !== ''" class="mono" style="font-size:12px; color:#888;">{{ lic.device_id }}</span>
+                                                                                                                                                                                                    <span v-else class="badge badge-available">Tersedia</span>
+                                                                                                                                                                                                    <button v-if="lic.device_id && lic.device_id !== 'null' && typeof lic.device_id === 'string' && lic.device_id.trim() !== ''" class="btn-danger-sm" style="padding: 4px; background: rgba(255,255,255,0.05); color: #ccc;" @click="resetHWID(lic)" title="Reset HWID">
+                                                                                                                                                                                                                                                        <i data-lucide="refresh-cw" style="width:12px; height:12px;"></i>
+                                                                                                                                                                                                                                                    </button>
+                                                                                                                                                        </div>
+                                                                                                            </td>
+                                                                                                        <td style="text-align:right;">
+                                                                                                                                                    <button class="btn-danger-sm" @click="confirmDelete(lic.key)" title="Hapus Lisensi & Kick User">
+                                                                                                                                                                                                    <i data-lucide="trash-2" style="width:16px; height:16px;"></i>
+                                                                                                                                                                                                </button>
+                                                                                                            </td>
+                                                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+                    <!-- Delete Modal -->
+                    <div class="modal-overlay" :class="{ 'active': deleteModal.show }">
+                                    <div class="modal-box">
+                                                        <div class="modal-icon">
+                                                                                <i data-lucide="alert-triangle" style="width:32px; height:32px;"></i>
+                                                        </div>
+                                                        <div class="modal-title">Hapus Lisensi?</div>
+                                                        <div class="modal-desc">
+                                                                                Apakah Anda yakin ingin menghapus lisensi <strong class="mono" style="color:#fff;">{{ deleteModal.key }}</strong>?<br><br>
+                                                                                Tindakan ini tidak bisa dibatalkan dan user akan <strong>langsung di-kick</strong> dari aplikasi.
+                                                        </div>
+                                                    <div class="modal-actions">
+                                                                        <button class="modal-btn modal-btn-cancel" @click="deleteModal.show = false">Batal</button>
+                                                                        <button class="modal-btn btn-red" @click="executeDelete">Ya, Hapus!</button>
+                                                    </div>
+                                    </div>
+                    </div>
+        
+                <!-- Toast Container -->
+                <div class="toast-container">
+                            <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type === 'error' ? 'toast-error' : 'toast-success'">
+                                            <i :data-lucide="t.type === 'error' ? 'x-circle' : 'check-circle'" :style="{ color: t.type === 'error' ? '#ef4444' : '#10b981', width:'20px', height:'20px' }"></i>
+                                            <span class="toast-text">{{ t.message }}</span>
+                            </div>
+                </div>
+        
+        </div> <!-- End Dashboard Container -->
+    </div> <!-- End App -->
+
+    <script>
+                const SUPABASE_URL = 'https://eemjrotrcftjdazyheoc.supabase.co/rest/v1/gdx_licenses';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlbWpyb3RyY2Z0amRhenloZW9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjE1NzAsImV4cCI6MjA5MDc5NzU3MH0.Uz0uOtpSYVEU88ATO8Wg_HAuGHWdWKuTObBf9D1bQwc';
+
+                const SUPABASE_AUTH_URL = 'https://eemjrotrcftjdazyheoc.supabase.co/auth/v1/token?grant_type=password';
+
+                function getAuthHeaders() {
+                                const token = localStorage.getItem('gdx_access_token');
+                                return {
+                                                    'apikey': SUPABASE_KEY,
+                                                    'Authorization': token ? 'Bearer ' + token : 'Bearer ' + SUPABASE_KEY,
+                                                    'Content-Type': 'application/json',
+                                                    'Prefer': 'return=representation'
+                                };
+                }
+
+                function supaFetch(queryParams, method, body) {
+                                const url = SUPABASE_URL + (queryParams || '');
+                                const opts = { method: method || 'GET', headers: getAuthHeaders() };
+                                if (body) opts.body = JSON.stringify(body);
+                                return fetch(url, opts);
+                }
+
+                const { createApp } = Vue;
+                    createApp({
+                                        data() {
+                                                                return {
+                                                                                            isLoggedIn: !!localStorage.getItem('gdx_access_token'),
+                                                                                            auth: { email: '', password: '', loading: false },
+                                                                                            licenses: [],
+                                                                                            loading: true,
+                                                                                            creating: false,
+                                                                                            searchQuery: '',
+                                                                                            newKey: '',
+                                                                                            toasts: [],
+                                                                                            deleteModal: { show: false, key: '' },
+                                                                                            currentTime: new Date()
+                                                                    };
+                                        },
+                                        computed: {
+                                                                filteredLicenses() {
+                                                                                            if (!this.searchQuery) return this.licenses;
+                                                                                            const q = this.searchQuery.toLowerCase();
+                                                                                            return this.licenses.filter(l =>
+                                                                                                                            (l.key && l.key.toLowerCase().includes(q)) ||
+                                                                                                                            (l.device_id && l.device_id.toLowerCase().includes(q))
+                                                                                                                                                );
+                                                                },
+                                                                stats() {
+                                                                                            const total = this.licenses.length;
+                                                                                            const installed = this.licenses.filter(l => l.device_id && l.device_id !== 'null' && typeof l.device_id === 'string' && l.device_id.trim() !== '').length;
+                                                                                            const online = this.licenses.filter(l => this.isActuallyOnline(l)).length;
+                                                                                            return { total, installed, online };
+                                                                }
+                                        },
+                                        mounted() {
+                                                                if (this.isLoggedIn) {
+                                                                                            this.fetchData();
+                                                                }
+                                                                setInterval(() => { if (this.isLoggedIn) this.fetchData(true); }, 10000);
+                                                                setInterval(() => { this.currentTime = new Date(); }, 1000);
+                                        },
+                                        updated() {
+                                                                lucide.createIcons();
+                                        },
+                                        methods: {
+                                                                isGdxTable() {
+                                                                                            return SUPABASE_URL.includes('/gdx_licenses');
+                                                                },
+                                                                isActuallyOnline(lic) {
+                                                                                            if (!lic.is_online) return false;
+                                                                                            if (!lic.last_seen) return false;
+                                                                                            const lastSeenDate = new Date(lic.last_seen);
+                                                                                            const diffSeconds = (this.currentTime - lastSeenDate) / 1000;
+                                                                                            return diffSeconds < 30;
+                                                                },
+                                                            async handleLogin() {
+                                                                                    this.auth.loading = true;
+                                                                                    try {
+                                                                                                                const res = await fetch(SUPABASE_AUTH_URL, {
+                                                                                                                                                method: 'POST',
+                                                                                                                                                headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+                                                                                                                                                body: JSON.stringify({ email: this.auth.email, password: this.auth.password })
+                                                                                                                    });
+                                                                                                                const data = await res.json();
+                                                                                                                
+                                                                                                                if (res.ok && data.access_token) {
+                                                                                                                                                localStorage.setItem('gdx_access_token', data.access_token);
+                                                                                                                                                this.isLoggedIn = true;
+                                                                                                                                                this.fetchData();
+                                                                                                                                                this.showToast('Login berhasil!', 'success');
+                                                                                                                    } else {
+                                                                                                                                                this.showToast(data.error_description || 'Email atau password salah!', 'error');
+                                                                                                                    }
+                                                                                        } catch (e) {
+                                                                                                                this.showToast('Gagal terhubung ke server', 'error');
+                                                                                        }
+                                                                                    this.auth.loading = false;
+                                                            },
+                                                            handleLogout() {
+                                                                                    localStorage.removeItem('gdx_access_token');
+                                                                                    this.isLoggedIn = false;
+                                                                                    this.licenses = [];
+                                                            },
+                                                            async fetchData(silent) {
+                                                                                    if (!silent) this.loading = true;
+                                                                                    try {
+                                                                                                                const res = await supaFetch('?select=*');
+                                                                                                                if (res.ok) {
+                                                                                                                                                const rawLicenses = await res.json();
+                                                                                                                                                const normalized = rawLicenses.map(lic => {
+                                                                                                                                                                                    lic.key = lic.key || lic.license;
+                                                                                                                                                                                    lic.device_id = lic.device_id || lic.hwid;
+                                                                                                                                                                                    if (lic.is_active !== undefined && lic.is_active !== null) {
+                                                                                                                                                                                                                            // Keep it
+                                                                                                                                                                                                                        } else if (lic.status !== undefined) {
+                                                                                                                                                                                                                            lic.is_active = (lic.status === 'active');
+                                                                                                                                                                                                                        } else {
+                                                                                                                                                                                                                            lic.is_active = true;
+                                                                                                                                                                                                                        }
+                                                                                                                                                                                    return lic;
+                                                                                                                                                    });
+                                                                                                                                                this.licenses = await this.checkAndCleanupExpired(normalized);
+                                                                                                                    } else {
+                                                                                                                                                if (res.status === 401) {
+                                                                                                                                                                                    this.handleLogout();
+                                                                                                                                                                                    this.showToast('Sesi telah habis (401), silakan login ulang', 'error');
+                                                                                                                                                    } else {
+                                                                                                                                                                                    if (!silent) this.showToast('Gagal memuat data: HTTP ' + res.status, 'error');
+                                                                                                                                                    }
+                                                                                                                    }
+                                                                                        } catch (e) {
+                                                                                                                if (!silent) this.showToast('Network error: ' + e.message, 'error');
+                                                                                        } finally {
+                                                                                                                if (!silent) this.loading = false;
+                                                                                                                setTimeout(() => lucide.createIcons(), 50);
+                                                                                        }
+                                                            },
+                                                            async checkAndCleanupExpired(licenses) {
+                                                                                    const now = new Date();
+                                                                                    const expiredLicenses = [];
+                                                                                    const validLicenses = [];
+
+                                                                for (const lic of licenses) {
+                                                                                            let isExpired = false;
+
+                                                                                        if (lic.expires_at) {
+                                                                                                                        const expDate = new Date(lic.expires_at);
+                                                                                                                        if (expDate < now) {
+                                                                                                                                                            isExpired = true;
+                                                                                                                            }
+                                                                                            }
+
+                                                                                        if (!isExpired && lic.created_at) {
+                                                                                                                        const createdDate = new Date(lic.created_at);
+                                                                                                                        const twoMonthsAgo = new Date();
+                                                                                                                        twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+                                                                                                                        if (createdDate < twoMonthsAgo) {
+                                                                                                                                                            isExpired = true;
+                                                                                                                            }
+                                                                                            }
+
+                                                                                        if (isExpired) {
+                                                                                                                        expiredLicenses.push(lic);
+                                                                                            } else {
+                                                                                                                        validLicenses.push(lic);
+                                                                                            }
+                                                                }
+
+                                                                for (const lic of expiredLicenses) {
+                                                                                            const key = lic.key || lic.license;
+                                                                                            let query = '';
+                                                                                            if (this.isGdxTable()) {
+                                                                                                                            query = '?key=eq.' + encodeURIComponent(key);
+                                                                                                } else {
+                                                                                                                            query = '?license=eq.' + encodeURIComponent(key);
+                                                                                                }
+                                                                                            supaFetch(query, 'DELETE').then(res => {
+                                                                                                                            if (res.ok) {
+                                                                                                                                                                console.log(`Expired license ${key} auto-deleted successfully.`);
+                                                                                                                                }
+                                                                                                }).catch(err => {
+                                                                                                                            console.error(`Error auto-deleting expired license ${key}:`, err);
+                                                                                                });
+                                                                }
+
+                                                                return validLicenses;
+                                                            },
+                                                            async generateLicense() {
+                                                                                    if (!this.newKey.trim()) {
+                                                                                                                this.showToast('Kode lisensi tidak boleh kosong!', 'error');
+                                                                                                                return;
+                                                                                        }
+                                                                                    this.creating = true;
+                                                                                    try {
+                                                                                                                const expiryDate = new Date();
+                                                                                                                expiryDate.setMonth(expiryDate.getMonth() + 2);
+
+                                                                                        let payload = {};
+                                                                                                                if (this.isGdxTable()) {
+                                                                                                                                                payload = {
+                                                                                                                                                                                    key: this.newKey.trim().toLowerCase(),
+                                                                                                                                                                                    is_active: true,
+                                                                                                                                                                                    expires_at: expiryDate.toISOString()
+                                                                                                                                                    };
+                                                                                                                    } else {
+                                                                                                                                                payload = {
+                                                                                                                                                                                    license: this.newKey.trim().toLowerCase(),
+                                                                                                                                                                                    status: 'active',
+                                                                                                                                                                                    expires_at: expiryDate.toISOString()
+                                                                                                                                                    };
+                                                                                                                    }
+
+                                                                                        const res = await supaFetch('', 'POST', payload);
+                                                                                                                if (res.ok) {
+                                                                                                                                                this.showToast('Lisensi baru berhasil ditambahkan!', 'success');
+                                                                                                                                                this.newKey = '';
+                                                                                                                                                this.fetchData();
+                                                                                                                    } else {
+                                                                                                                                                const errData = await res.json().catch(() => ({}));
+                                                                                                                                                if (res.status === 409 || (errData.message && errData.message.includes('duplicate'))) {
+                                                                                                                                                                                    this.showToast('Lisensi ini sudah terdaftar!', 'error');
+                                                                                                                                                    } else if (res.status === 401 || res.status === 403) {
+                                                                                                                                                                                    this.showToast('Akses ditolak! Pastikan RLS policy mengizinkan INSERT.', 'error');
+                                                                                                                                                    } else {
+                                                                                                                                                                                    this.showToast('Error: ' + (errData.message || res.status), 'error');
+                                                                                                                                                    }
+                                                                                                                    }
+                                                                                        } catch (e) {
+                                                                                                                this.showToast('Network error: ' + e.message, 'error');
+                                                                                        } finally {
+                                                                                                                this.creating = false;
+                                                                                        }
+                                                            },
+                                                            confirmDelete(key) {
+                                                                                    this.deleteModal.key = key;
+                                                                                    this.deleteModal.show = true;
+                                                            },
+                                                            async executeDelete() {
+                                                                                    const key = this.deleteModal.key;
+                                                                                    this.deleteModal.show = false;
+                                                                                    try {
+                                                                                                                this.licenses = this.licenses.filter(l => l.key !== key);
+                                                                                                                let query = '';
+                                                                                                                if (this.isGdxTable()) {
+                                                                                                                                                query = '?key=eq.' + encodeURIComponent(key);
+                                                                                                                    } else {
+                                                                                                                                                query = '?license=eq.' + encodeURIComponent(key);
+                                                                                                                    }
+                                                                                                                const res = await supaFetch(query, 'DELETE');
+                                                                                                                if (res.ok) {
+                                                                                                                                                this.showToast('Lisensi ' + key + ' berhasil dihapus.', 'success');
+                                                                                                                    } else {
+                                                                                                                                                this.showToast('Gagal menghapus lisensi. Cek RLS.', 'error');
+                                                                                                                                                this.fetchData();
+                                                                                                                    }
+                                                                                        } catch (e) {
+                                                                                                                this.showToast('Network error: ' + e.message, 'error');
+                                                                                                                this.fetchData();
+                                                                                        }
+                                                            },
+                                                            async toggleStatus(lic) {
+                                                                                    const newActive = !lic.is_active;
+                                                                                    let payload = {};
+                                                                                    let query = '';
+                                                                                    if (this.isGdxTable()) {
+                                                                                                                payload.is_active = newActive;
+                                                                                                                query = '?key=eq.' + encodeURIComponent(lic.key);
+                                                                                        } else {
+                                                                                                                payload.status = newActive ? 'active' : 'paused';
+                                                                                                                query = '?license=eq.' + encodeURIComponent(lic.key);
+                                                                                        }
+                                                                                    lic.is_active = newActive;
+                                                                                    try {
+                                                                                                                const res = await supaFetch(query, 'PATCH', payload);
+                                                                                                                if (res.ok) {
+                                                                                                                                                this.showToast('Status lisensi berhasil diubah!', 'success');
+                                                                                                                    } else {
+                                                                                                                                                this.showToast('Gagal mengubah status lisensi', 'error');
+                                                                                                                                                this.fetchData();
+                                                                                                                    }
+                                                                                        } catch (e) {
+                                                                                                                this.showToast('Network error: ' + e.message, 'error');
+                                                                                                                this.fetchData();
+                                                                                        }
+                                                            },
+                                                            async resetHWID(lic) {
+                                                                                    let payload = {};
+                                                                                    let query = '';
+                                                                                    if (this.isGdxTable()) {
+                                                                                                                payload.device_id = null;
+                                                                                                                query = '?key=eq.' + encodeURIComponent(lic.key);
+                                                                                        } else {
+                                                                                                                payload.hwid = null;
+                                                                                                                query = '?license=eq.' + encodeURIComponent(lic.key);
+                                                                                        }
+                                                                                    lic.device_id = null;
+                                                                                    try {
+                                                                                                                const res = await supaFetch(query, 'PATCH', payload);
+                                                                                                                if (res.ok) {
+                                                                                                                                                this.showToast('HWID berhasil di-reset!', 'success');
+                                                                                                                    } else {
+                                                                                                                                                this.showToast('Gagal reset HWID', 'error');
+                                                                                                                                                this.fetchData();
+                                                                                                                    }
+                                                                                        } catch (e) {
+                                                                                                                this.showToast('Network error: ' + e.message, 'error');
+                                                                                                                this.fetchData();
+                                                                                        }
+                                                            },
+                                                            showToast(message, type) {
+                                                                                    const id = Date.now();
+                                                                                    this.toasts.push({ id, message, type: type || 'success' });
+                                                                                    setTimeout(() => lucide.createIcons(), 50);
+                                                                                    setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 4000);
+                                                            }
+                                        }
+                    }).mount('#app');
 </script>
-
 </body>
 </html>
